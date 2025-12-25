@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Daily Positivity — Overthinkers</title>
+  <style>
+    body{font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;margin:0;background:#f7fbff}
+    .navbar{background:rgba(0,0,0,0.8);color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+    .navbar a{color:#fff;text-decoration:none;margin-left:12px}
+    .container{max-width:900px;margin:28px auto;padding:18px}
+    .card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.06)}
+    .quote{font-size:20px;color:#0f172a;margin:18px 0;font-weight:600}
+    .meta{color:#556; font-size:13px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .btn{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+    .btn-ghost{background:#eef2ff;color:#111;border:1px solid #e2e8f0}
+    label{font-size:13px;color:#333}
+    input[type="time"]{padding:8px;border-radius:6px;border:1px solid #e6eefb}
+    .small{font-size:13px;color:#555}
+    .history{margin-top:12px}
+    @media(max-width:720px){.controls{flex-direction:column;align-items:stretch}}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div style="font-weight:700">🧠 Overthinkers</div>
+    <div>
+      <a href="index.html">Login</a>
+      <a href="page1.html">Dashboard</a>
+      <a href="page2.html">Stress</a>
+      <a href="page3.html">Emergency</a>
+      <a href="page4.html">Positivity</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h2 style="margin:0">Daily Positive Thought</h2>
+      <p class="small">Receive a gentle positive thought each day. Enable desktop notifications to get the thought at a specific time.</p>
+
+      <div id="quote" class="quote">Loading today's thought…</div>
+      <div id="quoteAuthor" class="meta"></div>
+
+      <div class="controls">
+        <button class="btn" id="anotherBtn">Show another</button>
+        <button class="btn-ghost" id="notifyToggle">Enable Notifications</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label for="notifTime">Notify time:</label>
+          <input type="time" id="notifTime" value="09:00">
+        </div>
+        <button class="btn-ghost" id="testNotify">Test Notification</button>
+      </div>
+
+      <div style="margin-top:14px" class="small">Notifications require permission. Notifications will only trigger while this page/tab is open (browser background restrictions apply). For persistent scheduled notifications across closed browsers, a server and push service are required.</div>
+
+      <div class="history card" id="historyCard" style="margin-top:18px;padding:12px;">
+        <div style="font-weight:700">Recent Thoughts</div>
+        <div id="recentList" class="small" style="margin-top:8px;color:#333">—</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Quotes array
+    const QUOTES = [
+      {t: "You are capable of more than you know.", a: "— Unknown"},
+      {t: "Small steps every day make a big difference.", a: "— Overthinkers"},
+      {t: "Be kind to yourself — you’re doing your best.", a: "— Unknown"},
+      {t: "A single positive thought can change your whole day.", a: "— Unknown"},
+      {t: "Progress, not perfection.", a: "— Unknown"},
+      {t: "You are enough, exactly as you are.", a: "— Unknown"},
+      {t: "Breathe. One step at a time.", a: "— Overthinkers"},
+      {t: "Small acts of self-care compound into well-being.", a: "— Overthinkers"},
+      {t: "Allow yourself to pause and reset.", a: "— Unknown"},
+      {t: "Celebrate tiny wins — they add up.", a: "— Unknown"}
+    ];
+
+    const STORAGE_KEY = 'gdg_positive_settings';
+    const HISTORY_KEY = 'gdg_positive_history';
+
+    function pickForToday(){
+      const today = new Date();
+      const idx = Math.abs(Math.floor((today.getFullYear()*10000 + (today.getMonth()+1)*100 + today.getDate())) ) % QUOTES.length;
+      return { idx, quote: QUOTES[idx] };
+    }
+
+    function setQuote(q){
+      document.getElementById('quote').textContent = q.t;
+      document.getElementById('quoteAuthor').textContent = q.a;
+    }
+
+    function randomQuote(){
+      const i = Math.floor(Math.random()*QUOTES.length);
+      return { idx:i, quote: QUOTES[i] };
+    }
+
+    function loadSettings(){
+      try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }catch(e){ return {}; }
+    }
+    function saveSettings(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+    function addToHistory(quoteObj){
+      try{
+        const existing = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        existing.unshift({ ts: new Date().toISOString(), q: quoteObj });
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(existing.slice(0,50)));
+        renderHistory();
+      }catch(e){ console.warn(e); }
+    }
+
+    function renderHistory(){
+      const el = document.getElementById('recentList');
+      const items = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      if(!items.length){ el.textContent = 'No recent thoughts yet.'; return; }
+      el.innerHTML = items.slice(0,6).map(it=> `<div style="margin-bottom:6px">${new Date(it.ts).toLocaleDateString()}: <strong>${it.q.t}</strong> <span style="color:#666">${it.q.a}</span></div>`).join('');
+    }
+
+    // Notifications logic
+    let notifTimer = null;
+    function requestPermissionAndSchedule(){
+      if(!('Notification' in window)){
+        alert('Notifications are not supported in this browser.');
+        return;
+      }
+      Notification.requestPermission().then(perm => {
+        if(perm === 'granted'){
+          const settings = loadSettings(); settings.enabled = true; saveSettings(settings);
+          document.getElementById('notifyToggle').textContent = 'Disable Notifications';
+          scheduleNextNotification();
+        } else {
+          alert('Notifications permission denied.');
+        }
+      });
+    }
+
+    function disableNotifications(){
+      const settings = loadSettings(); settings.enabled = false; saveSettings(settings);
+      document.getElementById('notifyToggle').textContent = 'Enable Notifications';
+      if(notifTimer){ clearTimeout(notifTimer); notifTimer = null; }
+    }
+
+    function scheduleNextNotification(){
+      const settings = loadSettings();
+      if(!settings.enabled) return;
+      const time = settings.time || '09:00';
+      // compute ms until next occurrence
+      const [hh,mm] = time.split(':').map(s=>parseInt(s,10));
+      const now = new Date();
+      const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
+      if(next <= now) next.setDate(next.getDate()+1);
+      const ms = next.getTime() - now.getTime();
+      if(notifTimer) clearTimeout(notifTimer);
+      notifTimer = setTimeout(()=>{
+        showNotificationForToday();
+        // schedule subsequent notifications every 24h
+        notifTimer = setInterval(showNotificationForToday, 24*60*60*1000);
+      }, ms);
+    }
+
+    function showNotificationForToday(){
+      const pick = pickForToday();
+      const q = pick.quote;
+      addToHistory({ idx: pick.idx, t: q.t, a: q.a });
+      if('Notification' in window && Notification.permission === 'granted'){
+        const n = new Notification('Your positive thought', { body: q.t + ' ' + (q.a||''), tag: 'gdg-positive' });
+      }
+      // also update visible quote
+      setQuote(q);
+    }
+
+    // Hook UI
+    document.getElementById('anotherBtn').addEventListener('click', ()=>{ const r = randomQuote(); setQuote(r.quote); addToHistory({ idx: r.idx, t: r.quote.t, a: r.quote.a }); });
+    document.getElementById('testNotify').addEventListener('click', ()=>{
+      const r = randomQuote();
+      if('Notification' in window && Notification.permission === 'granted'){
+        new Notification('Test positive thought', { body: r.quote.t + ' ' + r.quote.a });
+      } else {
+        alert(r.quote.t + '\n' + r.quote.a);
+      }
+    });
+
+    document.getElementById('notifyToggle').addEventListener('click', ()=>{
+      const settings = loadSettings();
+      if(settings.enabled) disableNotifications(); else requestPermissionAndSchedule();
+    });
+
+    document.getElementById('notifTime').addEventListener('change', (e)=>{
+      const t = e.target.value; const s = loadSettings(); s.time = t; saveSettings(s); scheduleNextNotification();
+    });
+
+    // Initialize
+    (function(){
+      // show today's thought by default
+      const todayPick = pickForToday(); setQuote(todayPick.quote); addToHistory({ idx: todayPick.idx, t: todayPick.quote.t, a: todayPick.quote.a });
+      // load settings
+      const settings = loadSettings();
+      if(settings.time) document.getElementById('notifTime').value = settings.time;
+      if(settings.enabled){ document.getElementById('notifyToggle').textContent = 'Disable Notifications'; scheduleNextNotification(); }
+      else document.getElementById('notifyToggle').textContent = 'Enable Notifications';
+      renderHistory();
+    })();
+
+    // Note: desktop notifications only work when site is open/allowed; push for closed browser requires service workers & push subscription.
+  </script>
+</body>
+</html>
+
+<!-- Auth guard: require logged-in user to view positivity page -->
+<script>
+  (function(){
+    try{
+      const current = localStorage.getItem('gdg_current_user');
+      const users = JSON.parse(localStorage.getItem('gdg_users') || '[]');
+      if(!current){
+        if(!users || users.length === 0){ window.location.href = 'register.html'; return; }
+        window.location.href = 'index.html'; return;
+      }
+      document.querySelectorAll('.logout-btn').forEach(btn=> btn.addEventListener('click', function(e){ e.preventDefault(); localStorage.removeItem('gdg_current_user'); window.location.href='index.html'; }));
+    }catch(e){ console.warn('auth guard error', e); }
+  })();
+</script>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Emergency — Overthinkers</title>
+  <style>
+    body{font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;margin:0;background:#f6f8fb}
+    .navbar{background:rgba(0,0,0,0.8);color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+    .navbar a{color:#fff;text-decoration:none;margin-left:12px}
+    .container{max-width:900px;margin:26px auto;padding:18px}
+    .card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.06)}
+    .btn{background:#e74c3c;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+    .btn-ghost{background:#f1f5f9;color:#111;border:1px solid #e2e8f0}
+    .grid{display:grid;grid-template-columns:1fr 340px;gap:18px}
+    .contacts{display:flex;flex-direction:column;gap:10px}
+    .contact{padding:10px;border-radius:8px;background:#fff3f3;border:1px solid #ffd6d6}
+    .small{font-size:13px;color:#555}
+    @media(max-width:880px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div style="font-weight:700">🧠 Overthinkers — Emergency</div>
+    <div>
+      <a href="index.html">Login</a>
+      <a href="page1.html">Dashboard</a>
+      <a href="page2.html">Stress</a>
+      <a href="page3.html">Emergency</a>
+      <a href="page4.html">Positivity</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card grid">
+      <div>
+        <h2 style="margin-top:0;color:#b91c1c">Immediate Emergency Actions</h2>
+        <p class="small">This page helps you quickly contact emergency services and share your current location. Your browser will request permission to access your location. If you are in immediate danger call your local emergency number first.</p>
+
+        <div style="margin:12px 0;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="callEmergency">Call Emergency</button>
+          <button class="btn btn-ghost" id="openMaps">Open In Maps</button>
+          <button class="btn btn-ghost" id="copyLoc">Copy Location</button>
+          <button class="btn btn-ghost" id="emailOfficials">Email Officials</button>
+        </div>
+
+        <div style="margin-top:14px">
+          <div id="locStatus" class="small">Trying to determine your location…</div>
+          <div id="locInfo" style="margin-top:8px;color:#111"></div>
+        </div>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid #eef2f7">
+
+        <h3 style="margin-bottom:8px">Nearby resources / quick actions</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost" id="findHosp">Find Nearby Hospitals</button>
+          <button class="btn btn-ghost" id="findPolice">Find Nearby Police</button>
+          <button class="btn btn-ghost" id="findClinics">Find Mental Health Clinics</button>
+        </div>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid #eef2f7">
+
+        <h3 style="margin-bottom:8px">Important safety tips</h3>
+        <ul class="small" style="color:#555">
+          <li>If you're in immediate danger, call your emergency number first.</li>
+          <li>When sharing your location, prefer phone calls where possible for speed.</li>
+          <li>Replace placeholder contacts with your local numbers if needed.</li>
+        </ul>
+      </div>
+
+      <aside>
+        <div style="position:sticky;top:20px">
+          <h3 style="margin-top:0">Government & Emergency Contacts</h3>
+          <div class="contacts">
+            <div class="contact">
+              <div style="font-weight:700">Emergency Services</div>
+              <div class="small">Number: <a id="telEmergency" href="tel:112">112</a></div>
+            </div>
+
+            <div class="contact">
+              <div style="font-weight:700">Ambulance</div>
+              <div class="small">Number: <a id="telAmbulance" href="tel:102">102</a></div>
+            </div>
+
+            <div class="contact">
+              <div style="font-weight:700">Police (Non-emergency)</div>
+              <div class="small">Number: <a id="telPolice" href="tel:100">100</a></div>
+            </div>
+
+            <div class="contact">
+              <div style="font-weight:700">Ministry / Health Dept.</div>
+              <div class="small">Email: <a id="emailHealth" href="mailto:health@example.gov">health@example.gov</a></div>
+            </div>
+
+            <div class="contact">
+              <div style="font-weight:700">National Mental Health Helpline</div>
+              <div class="small">Number: <a id="telHelpline" href="tel:8002738255">800-273-8255</a></div>
+            </div>
+
+            <div class="contact">
+              <div style="font-weight:700">Local Authority Contact</div>
+              <div class="small">Placeholder: update with local official numbers</div>
+            </div>
+
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div style="margin-top:12px" class="card">
+      <h3 style="margin-top:0">Map / Location</h3>
+      <div id="mapArea" style="height:320px;background:#eef2f7;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#666">Map will appear here after allowing location.</div>
+    </div>
+  </div>
+
+  <script>
+    // Utility: build maps links
+    function mapsQuery(lat,lng,q){
+      // prefer Google Maps web search link (works cross-platform)
+      if(q) return `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},15z`;
+      return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    }
+
+    function setStatus(msg){ document.getElementById('locStatus').textContent = msg; }
+    function setLocInfo(html){ document.getElementById('locInfo').innerHTML = html; }
+    function setMap(html){ document.getElementById('mapArea').innerHTML = html; }
+
+    // Get geolocation and display
+    let lastLocation = null;
+    function locateUser(){
+      setStatus('Requesting location permission...');
+      if(!navigator.geolocation){ setStatus('Geolocation not supported by your browser.'); return; }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lng = pos.coords.longitude.toFixed(6);
+        const acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) + ' m' : 'unknown';
+        lastLocation = {lat:lat,lng:lng,acc:acc,ts:new Date(pos.timestamp).toISOString()};
+        setStatus('Location acquired');
+        setLocInfo(`<div style="font-weight:700">${lat}, ${lng}</div><div class="small">Accuracy: ${acc}</div><div class="small">Timestamp: ${new Date(pos.timestamp).toLocaleString()}</div>`);
+        // Map preview using Google Maps link (no API key required for link)
+        const gmaps = mapsQuery(lat,lng);
+        setMap(`<iframe width="100%" height="100%" frameborder="0" style="border:0;border-radius:8px" src="${gmaps}" allowfullscreen></iframe>`);
+      }, err => {
+        console.warn('geolocation error', err);
+        setStatus('Could not get location: ' + (err.message||'permission denied'));
+        setLocInfo('Please allow location access or enter your location manually.');
+        setMap('<div class="small">No map available</div>');
+      }, { enableHighAccuracy:true, maximumAge: 0, timeout: 10000 });
+    }
+
+    // Buttons
+    document.getElementById('callEmergency').addEventListener('click', function(){
+      // quick call to emergency number
+      window.location.href = document.getElementById('telEmergency').href;
+    });
+
+    document.getElementById('openMaps').addEventListener('click', function(){
+      if(!lastLocation){ locateUser(); setStatus('Getting location and then opening maps...'); setTimeout(()=>{ if(lastLocation) window.open(mapsQuery(lastLocation.lat,lastLocation.lng), '_blank'); },1200); }
+      else window.open(mapsQuery(lastLocation.lat,lastLocation.lng), '_blank');
+    });
+
+    document.getElementById('copyLoc').addEventListener('click', async function(){
+      if(!lastLocation){ setStatus('Please allow location access first.'); locateUser(); return; }
+      const text = `My location: https://www.google.com/maps/search/?api=1&query=${lastLocation.lat},${lastLocation.lng} (accuracy: ${lastLocation.acc})`;
+      try{
+        await navigator.clipboard.writeText(text);
+        setStatus('Location copied to clipboard.');
+      }catch(e){
+        setStatus('Could not copy automatically. Select and copy:');
+        setLocInfo(`<div>${text}</div>`);
+      }
+    });
+
+    document.getElementById('emailOfficials').addEventListener('click', function(){
+      if(!lastLocation){ locateUser(); setStatus('Getting location then opening email client...'); setTimeout(()=>{ if(lastLocation) openEmail(); },1200); return; }
+      openEmail();
+    });
+
+    function openEmail(){
+      const recipients = ['health@example.gov']; // replace with real government addresses as needed
+      const subject = encodeURIComponent('Urgent: Request for Immediate Assistance / Location');
+      const body = encodeURIComponent(`I require assistance. My approximate location: https://www.google.com/maps/search/?api=1&query=${lastLocation.lat},${lastLocation.lng}\nAccuracy: ${lastLocation.acc}\nTime: ${new Date().toLocaleString()}\n\nPlease respond urgently.`);
+      window.location.href = `mailto:${recipients.join(',')}?subject=${subject}&body=${body}`;
+    }
+
+    // Quick searches
+    document.getElementById('findHosp').addEventListener('click', function(){ if(!lastLocation){ locateUser(); setStatus('Getting location...'); setTimeout(()=>{ if(lastLocation) window.open(mapsQuery(lastLocation.lat,lastLocation.lng,'hospital'), '_blank'); },1200); } else window.open(mapsQuery(lastLocation.lat,lastLocation.lng,'hospital')); });
+    document.getElementById('findPolice').addEventListener('click', function(){ if(!lastLocation){ locateUser(); setStatus('Getting location...'); setTimeout(()=>{ if(lastLocation) window.open(mapsQuery(lastLocation.lat,lastLocation.lng,'police'), '_blank'); },1200); } else window.open(mapsQuery(lastLocation.lat,lastLocation.lng,'police')); });
+    document.getElementById('findClinics').addEventListener('click', function(){ if(!lastLocation){ locateUser(); setStatus('Getting location...'); setTimeout(()=>{ if(lastLocation) window.open(mapsQuery(lastLocation.lat,lastLocation.lng,'mental health clinic'), '_blank'); },1200); } else window.open(mapsQuery(lastLocation.lat,lastLocation.lng,'mental health clinic')); });
+
+    // try to locate on load for quick access
+    setTimeout(()=>{ locateUser(); }, 400);
+  </script>
+</body>
+</html>
+
+<!-- Auth guard: require logged-in user to view emergency page -->
+<script>
+  (function(){
+    try{
+      const current = localStorage.getItem('gdg_current_user');
+      const users = JSON.parse(localStorage.getItem('gdg_users') || '[]');
+      if(!current){
+        if(!users || users.length === 0){ window.location.href = 'register.html'; return; }
+        window.location.href = 'index.html'; return;
+      }
+      document.querySelectorAll('.logout-btn').forEach(btn=> btn.addEventListener('click', function(e){ e.preventDefault(); localStorage.removeItem('gdg_current_user'); window.location.href='index.html'; }));
+    }catch(e){ console.warn('auth guard error', e); }
+  })();
+</script>

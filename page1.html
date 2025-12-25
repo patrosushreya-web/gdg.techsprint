@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar h2 {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Hero Section with Background */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%),
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23667eea" width="1200" height="600"/><circle cx="100" cy="100" r="80" fill="%23764ba2" opacity="0.3"/><circle cx="1100" cy="500" r="100" fill="%23764ba2" opacity="0.3"/><path d="M0 300 Q300 200 600 300 T1200 300" stroke="%23ffffff" stroke-width="2" fill="none" opacity="0.2"/></svg>');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.5"/><circle cx="80" cy="80" r="2" fill="white" opacity="0.5"/><circle cx="50" cy="50" r="1.5" fill="white" opacity="0.3"/></svg>');
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 15px 35px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            padding: 60px 30px;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 50px;
+            color: #333;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: #667eea;
+            margin: 15px auto 0;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .card-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .stress-level {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .stress-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f5f5f5;
+        }
+
+        .stress-display h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .stress-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stress-status {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: #e0e0e0;
+            color: #333;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+
+        /* Calendar Styles */
+        .calendar-wrapper {
+            max-width: 1100px;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .calendar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .calendar-nav button {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day {
+            min-height: 80px;
+            padding: 8px;
+            border-radius: 8px;
+            background: #f8f9fb;
+            position: relative;
+        }
+
+        .calendar-day.today {
+            border: 2px solid rgba(102,126,234,0.9);
+            background: linear-gradient(90deg, rgba(102,126,234,0.04), rgba(118,75,162,0.02));
+        }
+
+        .calendar-day .date-num {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .event-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .agenda {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .agenda h4 { margin-bottom: 12px; }
+
+        .agenda-item { padding: 10px; border-bottom: 1px solid #eef2f6; }
+
+        /* Footer */
+        .footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        /* Emergency Modal Styles */
+        #mapContainer {
+            width: 100%;
+            height: 400px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .emergency-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .emergency-info h4 {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .emergency-info p {
+            color: #856404;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .emergency-contacts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .contact-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .contact-card h5 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .contact-card p {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .contact-card a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+
+        .nearby-services {
+            margin: 20px 0;
+        }
+
+        .service-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .service-list li {
+            padding: 10px;
+            background: #f8f9fa;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .service-list li strong {
+            color: #333;
+        }
+
+        .service-list li span {
+            color: #666;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 32px;
+            }
+
+            .hero-content p {
+                font-size: 16px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+
+            .nav-links {
+                gap: 15px;
+                font-size: 14px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <h2>🧠 Overthinkers</h2>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#schedule">Schedule</a>
+            <a href="page2.html">Stress Analysis</a>
+            <a href="page3.html">Emergency</a>
+            <a href="page4.html">Positivity</a>
+            <a href="index.html" class="logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="hero-content">
+            <h1>Your Mental Health Matters</h1>
+            <p>Track your stress levels, schedule counseling sessions, and take care of your wellbeing</p>
+            <div class="cta-buttons">
+                <button class="cta-btn btn-primary" onclick="openScheduleModal()">Schedule Session</button>
+                <button class="cta-btn btn-secondary" onclick="openStressModal()">Check Stress Level</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard" id="schedule">
+        <h2 class="section-title">Dashboard</h2>
+        <div class="dashboard-grid">
+            <!-- Schedule Card -->
+            <div class="card">
+                <div class="card-icon">📅</div>
+                <h3>Schedule Session</h3>
+                <p>Book a counseling session with our experienced professionals at your convenience.</p>
+                <button class="card-btn" onclick="openScheduleModal()">Update Schedule</button>
+            </div>
+
+            <!-- Stress Analysis Card -->
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <h3>Stress Analysis</h3>
+                <p>Monitor your stress levels and get personalized recommendations for better mental health.</p>
+                <button class="card-btn" onclick="openStressModal()">Analyze Stress</button>
+            </div>
+
+            <!-- Resources Card -->
+            <div class="card">
+                <div class="card-icon">📚</div>
+                <h3>Wellness Resources</h3>
+                <p>Access a library of wellness articles, meditation guides, and coping strategies.</p>
+                <button class="card-btn" onclick="alert('Resources coming soon!')">View Resources</button>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="card">
+                <div class="card-icon">📈</div>
+                <h3>Your Progress</h3>
+                <div id="progressSummary" style="margin:12px 0;color:#666">No progress saved yet.</div>
+                <button id="viewProgressBtn" class="card-btn" onclick="window.location.href='page2.html'">View Progress</button>
+            </div>
+
+            <!-- Support Card -->
+            <div class="card">
+                <div class="card-icon">🤝</div>
+                <h3>Community Support</h3>
+                <p>Connect with others on similar mental health journeys in our supportive community.</p>
+                <button class="card-btn" onclick="alert('Community feature coming soon!')">Join Community</button>
+            </div>
+
+            <!-- Emergency Card -->
+            <div class="card">
+                <div class="card-icon">🆘</div>
+                <h3>Emergency Support</h3>
+                <p>Immediate help available 24/7. Reach out to our crisis support team anytime.</p>
+                <button class="card-btn" onclick="openEmergencyModal()">Get Help</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calendar Section -->
+    <section class="calendar-wrapper">
+        <div class="calendar">
+            <div class="calendar-header">
+                <div style="font-weight:700; font-size:18px;">Calendar</div>
+                <div class="calendar-nav">
+                    <button onclick="prevMonth()">◀</button>
+                    <span id="calendarMonth" style="margin:0 10px; font-weight:600;"></span>
+                    <button onclick="nextMonth()">▶</button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Days will be injected here -->
+            </div>
+        </div>
+
+        <aside class="agenda" id="agenda">
+            <h4>Agenda</h4>
+            <div id="agendaList">Select a date to see tasks</div>
+        </aside>
+    </section>
+
+    <!-- Schedule Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeScheduleModal()">&times;</span>
+            <h2>📅 Schedule Your Session</h2>
+            <div class="success-message" id="scheduleSuccess"></div>
+            <form onsubmit="submitSchedule(event)">
+                <div class="form-group">
+                    <label for="sessionDate">Select Date:</label>
+                    <input type="date" id="sessionDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="sessionTime">Select Time:</label>
+                    <input type="time" id="sessionTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="counselor">Choose Counselor:</label>
+                    <select id="counselor" required>
+                        <option value="">Select a counselor</option>
+                        <option value="dr-smith">Dr. Sarah Smith (Stress Management)</option>
+                        <option value="dr-johnson">Dr. James Johnson (Anxiety & Depression)</option>
+                        <option value="dr-williams">Dr. Emily Williams (Life Coaching)</option>
+                        <option value="dr-brown">Dr. Michael Brown (Family Counseling)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sessionType">Session Type:</label>
+                    <select id="sessionType" required>
+                        <option value="">Select type</option>
+                        <option value="video">Video Call</option>
+                        <option value="phone">Phone Call</option>
+                        <option value="inperson">In-Person</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes/Concerns:</label>
+                    <textarea id="notes" placeholder="Share anything you'd like to discuss..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-submit">Schedule Session</button>
+                    <button type="button" class="btn-cancel" onclick="closeScheduleModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stress Analysis Modal -->
+    <div id="stressModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeStressModal()">&times;</span>
+            <h2>📊 Stress Level Analysis</h2>
+            <div class="success-message" id="stressSuccess"></div>
+            <form onsubmit="submitStressAnalysis(event)">
+                <div class="form-group">
+                    <label for="sleepQuality">Sleep Quality (1-10):</label>
+                    <input type="number" id="sleepQuality" min="1" max="10" required>
+                </div>
+                <div class="form-group">
+                    <label for="workLoad">Work Load:</label>
+                    <select id="workLoad" required>
+                        <option value="">Select level</option>
+                        <option value="light">Light</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="heavy">Heavy</option>
+                        <option value="extreme">Extreme</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="mood">Current Mood:</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="10" value="5" class="slider" id="moodSlider" oninput="updateMoodValue(this.value)">
+                        <div class="stress-level">
+                            <span>Very Bad</span>
+                            <span id="moodValue">5</span>
+                            <span>Excellent</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="stressLevel">Stress Level (1-10):</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="10" value="5" class="slider" id="stressSlider" oninput="updateStressValue(this.value)">
+                        <div class="stress-level">
+                            <span>Very Low</span>
+                            <span id="stressValue">5</span>
+                            <span>Very High</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="exerciseFreq">Exercise Frequency:</label>
+                    <select id="exerciseFreq" required>
+                        <option value="">Select frequency</option>
+                        <option value="never">Never</option>
+                        <option value="rarely">Rarely (1-2x/month)</option>
+                        <option value="sometimes">Sometimes (1-2x/week)</option>
+                        <option value="regularly">Regularly (3-4x/week)</option>
+                        <option value="daily">Daily</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="concerns">Any Specific Concerns:</label>
+                    <textarea id="concerns" placeholder="Describe what's stressing you..."></textarea>
+                </div>
+                <div id="stressResult" class="stress-display" style="display: none;">
+                    <h3>Your Stress Assessment</h3>
+                    <div class="stress-value" id="stressScoreDisplay">0</div>
+                    <div class="stress-status" id="stressStatusDisplay">Normal</div>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-submit">Analyze Now</button>
+                    <button type="button" class="btn-cancel" onclick="closeStressModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Emergency Modal -->
+    <div id="emergencyModal" class="modal">
+        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="closeEmergencyModal()">&times;</span>
+            <h2>🆘 Emergency Support & Help</h2>
+            
+            <div class="emergency-info">
+                <h4>⚠️ Immediate Crisis?</h4>
+                <p>If you are in immediate danger, please call emergency services (911) or visit the nearest emergency room.</p>
+            </div>
+
+            <div class="emergency-contacts">
+                <div class="contact-card">
+                    <h5>Crisis Hotline</h5>
+                    <p>1-800-273-8255</p>
+                    <p style="font-size: 12px; margin-top: 5px; color: #666;">(National Suicide Prevention Lifeline)</p>
+                </div>
+                <div class="contact-card">
+                    <h5>Crisis Text Line</h5>
+                    <p>Text HOME</p>
+                    <p style="font-size: 12px; margin-top: 5px; color: #666;">to 741741</p>
+                </div>
+                <div class="contact-card">
+                    <h5>International</h5>
+                    <p>findahelpline.com</p>
+                </div>
+                <div class="contact-card">
+                    <h5>Emergency</h5>
+                    <p>911</p>
+                    <p style="font-size: 12px; margin-top: 5px; color: #666;">or Local Emergency</p>
+                </div>
+            </div>
+
+            <h3 style="color: #333; margin: 25px 0 15px 0; font-size: 18px;">📍 Find Nearby Mental Health Services</h3>
+            
+            <div id="mapContainer"></div>
+
+            <button class="card-btn" onclick="initializeMap()" style="width: 100%; margin-bottom: 15px;">
+                📍 Load Google Maps - Find Services Near You
+            </button>
+
+            <div class="nearby-services">
+                <h4 style="color: #333; margin-bottom: 15px;">Common Services to Search For:</h4>
+                <ul class="service-list">
+                    <li><strong>Mental Health Clinics</strong> <span>- Professional counseling services</span></li>
+                    <li><strong>Psychiatric Hospitals</strong> <span>- 24/7 emergency psychiatric care</span></li>
+                    <li><strong>Crisis Centers</strong> <span>- Immediate mental health support</span></li>
+                    <li><strong>Support Groups</strong> <span>- Community peer support meetings</span></li>
+                </ul>
+            </div>
+
+            <div style="background: #f0f7ff; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #667eea;">
+                <h4 style="color: #333; margin-bottom: 10px;">💡 Quick Tips:</h4>
+                <ul style="list-style: none; padding: 0; color: #666; font-size: 14px;">
+                    <li>✓ Search for "Mental Health Services" or "Psychiatrist" in the map</li>
+                    <li>✓ Check ratings and reviews before visiting</li>
+                    <li>✓ Call ahead to confirm hours and availability</li>
+                    <li>✓ Many services offer telehealth consultations</li>
+                </ul>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-submit" onclick="callHotline()" style="background: #e74c3c;">📞 Call Crisis Hotline</button>
+                <button type="button" class="btn-cancel" onclick="closeEmergencyModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Overthinkers - Your Mental Health Companion | <a href="index.html" style="color: #667eea; text-decoration: none;">Back to Login</a></p>
+    </footer>
+    <script>
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('sessionDate').min = today;
+
+        // Schedule Modal Functions
+        function openScheduleModal() {
+            document.getElementById('scheduleModal').style.display = 'block';
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').style.display = 'none';
+        }
+
+        function submitSchedule(e) {
+            e.preventDefault();
+            const date = document.getElementById('sessionDate').value;
+            const time = document.getElementById('sessionTime').value;
+            const counselor = document.getElementById('counselor').value;
+            const sessionType = document.getElementById('sessionType').value;
+            const notes = document.getElementById('notes').value;
+
+            if (date && time && counselor && sessionType) {
+                const successDiv = document.getElementById('scheduleSuccess');
+                successDiv.textContent = `Session scheduled successfully! Date: ${date}, Time: ${time}`;
+                successDiv.style.display = 'block';
+
+                setTimeout(() => {
+                    closeScheduleModal();
+                    document.getElementById('scheduleSuccess').style.display = 'none';
+                    document.getElementById('scheduleForm')?.reset();
+                }, 2000);
+            }
+        }
+
+        // Stress Modal Functions
+        function openStressModal() {
+            document.getElementById('stressModal').style.display = 'block';
+        }
+
+        function closeStressModal() {
+            document.getElementById('stressModal').style.display = 'none';
+            document.getElementById('stressResult').style.display = 'none';
+        }
+
+        function updateMoodValue(value) {
+            document.getElementById('moodValue').textContent = value;
+        }
+
+        function updateStressValue(value) {
+            document.getElementById('stressValue').textContent = value;
+        }
+
+        function submitStressAnalysis(e) {
+            e.preventDefault();
+            
+            const sleepQuality = parseInt(document.getElementById('sleepQuality').value);
+            const workLoad = document.getElementById('workLoad').value;
+            const stressLevel = parseInt(document.getElementById('stressSlider').value);
+            const mood = parseInt(document.getElementById('moodSlider').value);
+            const exercise = document.getElementById('exerciseFreq').value;
+
+            // Calculate stress score
+            let stressScore = stressLevel;
+            
+            // Adjust based on sleep
+            if (sleepQuality < 5) stressScore += 2;
+            if (sleepQuality < 3) stressScore += 2;
+            
+            // Adjust based on workload
+            if (workLoad === 'heavy') stressScore += 1;
+            if (workLoad === 'extreme') stressScore += 2;
+            
+            // Adjust based on mood
+            if (mood < 3) stressScore += 2;
+            if (mood < 5) stressScore += 1;
+            
+            // Adjust based on exercise
+            if (exercise === 'never' || exercise === 'rarely') stressScore += 1;
+            
+            // Cap at 10
+            stressScore = Math.min(stressScore, 10);
+
+            // Determine status
+            let status = '';
+            if (stressScore <= 3) status = '✅ Low Stress - Keep it up!';
+            else if (stressScore <= 5) status = '⚠️ Moderate Stress - Consider relaxation techniques';
+            else if (stressScore <= 7) status = '⚠️ High Stress - Schedule a counseling session';
+            else status = '🚨 Very High Stress - Seek immediate professional support';
+
+            // Display results
+            document.getElementById('stressScoreDisplay').textContent = stressScore.toFixed(1);
+            document.getElementById('stressStatusDisplay').textContent = status;
+            document.getElementById('stressResult').style.display = 'block';
+
+            const successDiv = document.getElementById('stressSuccess');
+            successDiv.textContent = 'Stress analysis complete! Review your results above.';
+            successDiv.style.display = 'block';
+        
+            // Save user's self-report so the task-based analyzer can include it
+            try {
+                const selfReport = {
+                    ts: new Date().toISOString(),
+                    sleepQuality: sleepQuality,
+                    workLoad: workLoad,
+                    stressLevel: stressLevel,
+                    mood: mood,
+                    exercise: exercise,
+                    concerns: document.getElementById('concerns').value || '',
+                    selfComputed: stressScore
+                };
+                localStorage.setItem('gdg_self_report', JSON.stringify(selfReport));
+            } catch (err) { console.warn('Could not save self-report', err); }
+        }
+
+            /* Calendar JavaScript */
+            (function(){
+                const eventsKey = 'gdg_calendar_events';
+                let today = new Date();
+                let currentMonth = today.getMonth();
+                let currentYear = today.getFullYear();
+
+                function loadEvents() {
+                    const raw = localStorage.getItem(eventsKey);
+                    return raw ? JSON.parse(raw) : {};
+                }
+
+                function saveEvents(obj) {
+                    localStorage.setItem(eventsKey, JSON.stringify(obj));
+                }
+
+                function renderCalendar(month, year) {
+                    const grid = document.getElementById('calendarGrid');
+                    grid.innerHTML = '';
+
+                    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                    document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+
+                    // weekday headers
+                    const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                    weekdays.forEach(d => {
+                        const el = document.createElement('div'); el.style.fontWeight='700'; el.style.textAlign='center'; el.textContent = d; grid.appendChild(el);
+                    });
+
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const daysInMonth = new Date(year, month+1, 0).getDate();
+                    const events = loadEvents();
+
+                    // empty slots
+                    for (let i=0;i<firstDay;i++){ const blank = document.createElement('div'); grid.appendChild(blank); }
+
+                    for (let d=1; d<=daysInMonth; d++){
+                        const cell = document.createElement('div');
+                        cell.className = 'calendar-day';
+                        const dateNum = document.createElement('div'); dateNum.className='date-num'; dateNum.textContent = d; cell.appendChild(dateNum);
+
+                        const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                        const dayEvents = (events[dateKey] || []);
+                        if (dayEvents.length){
+                            const dot = document.createElement('span'); dot.className='event-dot'; cell.appendChild(dot);
+                            const count = document.createElement('small'); count.textContent = `${dayEvents.length} task(s)`; count.style.color='#666'; count.style.display='block'; count.style.marginTop='6px'; count.style.fontSize='12px'; cell.appendChild(count);
+                        }
+
+                        // highlight today
+                        const isToday = (new Date().toDateString() === new Date(year, month, d).toDateString());
+                        if (isToday) cell.classList.add('today');
+
+                        cell.onclick = () => openDayModal(dateKey);
+                        grid.appendChild(cell);
+                    }
+                }
+
+                function prevMonth(){
+                    currentMonth--; if (currentMonth<0){ currentMonth=11; currentYear--; }
+                    renderCalendar(currentMonth, currentYear);
+                }
+                window.prevMonth = prevMonth;
+
+                function nextMonth(){
+                    currentMonth++; if (currentMonth>11){ currentMonth=0; currentYear++; }
+                    renderCalendar(currentMonth, currentYear);
+                }
+                window.nextMonth = nextMonth;
+
+                // Day modal (agenda updates in right panel)
+                function openDayModal(dateKey){
+                    let events = loadEvents();
+                    const dayEvents = events[dateKey] || [];
+                    const agendaList = document.getElementById('agendaList');
+                    agendaList.innerHTML = '';
+
+                    const title = document.createElement('div'); title.style.fontWeight='700'; title.style.marginBottom='8px'; title.textContent = `Events for ${dateKey}`; agendaList.appendChild(title);
+
+                    // list existing
+                    dayEvents.forEach((ev, idx)=>{
+                        const item = document.createElement('div'); item.className='agenda-item';
+                        item.innerHTML = `<div style="font-weight:600">${ev.time ? ev.time + ' ' : ''}${ev.title}</div><div style="font-size:13px;color:#666">${ev.notes || ''}</div>`;
+                        const del = document.createElement('button'); del.textContent='Delete'; del.style.float='right'; del.onclick = (e)=>{ e.stopPropagation(); dayEvents.splice(idx,1); events[dateKey]=dayEvents; saveEvents(events); renderCalendar(currentMonth,currentYear); openDayModal(dateKey); };
+                        item.appendChild(del);
+                        agendaList.appendChild(item);
+                    });
+
+                    // add form
+                    const form = document.createElement('form'); form.onsubmit = function(e){ e.preventDefault(); const titleV = this.querySelector('[name="evtTitle"]').value; const timeV = this.querySelector('[name="evtTime"]').value; const notesV = this.querySelector('[name="evtNotes"]').value; const evObj = { title: titleV, time: timeV, notes: notesV }; events[dateKey] = events[dateKey] || []; events[dateKey].push(evObj); saveEvents(events); renderCalendar(currentMonth,currentYear); openDayModal(dateKey); };
+                    form.innerHTML = `
+                        <div style="margin-top:12px;"><input name="evtTitle" placeholder="Task title" required style="width:100%; padding:8px; border:1px solid #e0e0e0; border-radius:6px; margin-bottom:8px;"></div>
+                        <div><input type="time" name="evtTime" style="width:100%; padding:8px; border:1px solid #e0e0e0; border-radius:6px; margin-bottom:8px;"></div>
+                        <div><textarea name="evtNotes" placeholder="Notes (optional)" style="width:100%; padding:8px; border:1px solid #e0e0e0; border-radius:6px; margin-bottom:8px;"></textarea></div>
+                        <div style="display:flex; gap:8px;"><button class="card-btn" type="submit">Add Task</button><button class="btn-cancel" type="button" onclick="renderCalendar(currentMonth, currentYear); document.getElementById('agendaList').innerHTML='Select a date to see tasks';">Close</button></div>
+                    `;
+                    agendaList.appendChild(form);
+                }
+                window.openDayModal = openDayModal;
+
+                // initial render
+                document.addEventListener('DOMContentLoaded', function(){ renderCalendar(currentMonth, currentYear); });
+                
+                // Update progress card summary from saved history (if any)
+                function updateProgressCard(){
+                    try{
+                        const key = 'gdg_stress_history';
+                        const hist = JSON.parse(localStorage.getItem(key) || '[]');
+                        const el = document.getElementById('progressSummary');
+                        if(!hist || hist.length===0){ el.textContent = 'No progress saved yet.'; return; }
+                        const latest = hist[0];
+                        const d = new Date(latest.ts);
+                        el.innerHTML = `<div style="font-weight:700">Latest: ${d.toLocaleString()}</div><div style="font-size:13px;color:#555">Score: ${latest.metrics.score} • Tasks(7d): ${latest.metrics.count} • Untimed: ${latest.metrics.untimed}</div>`;
+                    }catch(e){ console.warn('updateProgressCard error', e); }
+                }
+                window.addEventListener('DOMContentLoaded', updateProgressCard);
+            })();
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const scheduleModal = document.getElementById('scheduleModal');
+            const stressModal = document.getElementById('stressModal');
+            const emergencyModal = document.getElementById('emergencyModal');
+            
+            if (event.target === scheduleModal) {
+                scheduleModal.style.display = 'none';
+            }
+            if (event.target === stressModal) {
+                stressModal.style.display = 'none';
+            }
+            if (event.target === emergencyModal) {
+                emergencyModal.style.display = 'none';
+            }
+        }
+
+        // Emergency Modal Functions
+        function openEmergencyModal() {
+            document.getElementById('emergencyModal').style.display = 'block';
+        }
+
+        function closeEmergencyModal() {
+            document.getElementById('emergencyModal').style.display = 'none';
+        }
+
+        function callHotline() {
+            alert('📞 Calling Crisis Hotline: 1-800-273-8255\n\nIf this were a real application, it would dial the number on mobile devices.');
+        }
+
+        let map;
+        let userLocation = { lat: 40.7128, lng: -74.0060 }; // Default: New York City
+
+        function initializeMap() {
+            // Get user's location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        loadGoogleMaps();
+                    },
+                    function(error) {
+                        console.log('Location access denied, using default location');
+                        loadGoogleMaps();
+                    }
+                );
+            } else {
+                loadGoogleMaps();
+            }
+        }
+
+        function loadGoogleMaps() {
+            const mapContainer = document.getElementById('mapContainer');
+            
+            // Create a simple map using OpenStreetMap (no API key needed)
+            // For production, replace with Google Maps API
+            mapContainer.innerHTML = `
+                <iframe 
+                    width="100%" 
+                    height="400" 
+                    frameborder="0" 
+                    style="border:0; border-radius: 8px;"
+                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDxZ3r3XyTpNDwAP8nkUFNwMxh7H8L5h3w&q=mental+health+clinic+near+${userLocation.lat},${userLocation.lng}" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            `;
+
+            // Show success message
+            setTimeout(() => {
+                const info = document.createElement('div');
+                info.style.cssText = 'background: #d4edda; color: #155724; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #c3e6cb;';
+                info.textContent = '✓ Map loaded! Search for mental health services, clinics, and support centers near you.';
+                mapContainer.parentNode.insertBefore(info, mapContainer);
+                setTimeout(() => info.remove(), 5000);
+            }, 500);
+        }
+
+        // Alternative: Simple service locator without Google Maps API
+        function loadServiceLocator() {
+            const mapContainer = document.getElementById('mapContainer');
+            
+            const services = [
+                { name: 'City Mental Health Clinic', distance: '0.5 km', phone: '(555) 123-4567', address: '123 Main St' },
+                { name: 'Wellness Center Hospital', distance: '1.2 km', phone: '(555) 234-5678', address: '456 Oak Ave' },
+                { name: 'Crisis Support Unit', distance: '2.1 km', phone: '(555) 345-6789', address: '789 Pine Rd' },
+                { name: 'Community Mental Health', distance: '3.5 km', phone: '(555) 456-7890', address: '321 Elm St' }
+            ];
+
+            let html = '<div style="padding: 10px; background: white;">';
+            html += '<h4 style="color: #333; margin-bottom: 15px;">Nearby Mental Health Services:</h4>';
+            
+            services.forEach((service, index) => {
+                html += `
+                    <div style="padding: 12px; margin: 10px 0; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #667eea;">
+                        <div style="font-weight: 600; color: #333;">${service.name}</div>
+                        <div style="font-size: 13px; color: #666; margin-top: 5px;">📍 ${service.address}</div>
+                        <div style="font-size: 13px; color: #666;">📞 <a href="tel:${service.phone}" style="color: #667eea; text-decoration: none;">${service.phone}</a></div>
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">Distance: ${service.distance}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            mapContainer.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
+
+<!-- Auth guard: require logged-in user to view dashboard -->
+<script>
+    (function(){
+        try{
+            const current = localStorage.getItem('gdg_current_user');
+            const users = JSON.parse(localStorage.getItem('gdg_users') || '[]');
+            if(!current){
+                if(!users || users.length === 0){ window.location.href = 'register.html'; return; }
+                window.location.href = 'index.html'; return;
+            }
+            // attach logout behavior to any logout links/buttons
+            document.querySelectorAll('.logout-btn').forEach(btn=> btn.addEventListener('click', function(e){ e.preventDefault(); localStorage.removeItem('gdg_current_user'); window.location.href='index.html'; }));
+        }catch(e){ console.warn('auth guard error', e); }
+    })();
+</script>

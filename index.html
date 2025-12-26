@@ -3,9 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Overthinkers - Mental Health & Stress Management Platform</title>
+    <meta name="description" content="Overthinkers is a comprehensive mental health and stress management platform offering stress analysis, emergency support, and personalized wellness guidance. Sign in to manage your mental health.">
+    <meta name="keywords" content="mental health, stress management, anxiety relief, wellness, overthinkers, stress analysis, self-care">
+    <meta name="author" content="Overthinkers">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Overthinkers - Mental Health & Stress Management Platform">
+    <meta property="og:description" content="Manage your stress and mental health with our AI-powered analysis and support system.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Overthinkers">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://overthinkers.com/">
+    
+    <!-- Robots Meta -->
+    <meta name="robots" content="index, follow">
+    
+    <!-- Google Search Console -->
+    <meta name="google-site-verification" content="">
+    
     <style>
-        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -454,6 +473,44 @@
                 localStorage.removeItem('gdg_new_user');
             }catch(e){ /* ignore */ }
         })();
+    </script>
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Overthinkers",
+      "url": "https://overthinkers.com",
+      "description": "Mental Health & Stress Management Platform",
+      "logo": "https://overthinkers.com/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/overthinkers",
+        "https://twitter.com/overthinkers",
+        "https://www.instagram.com/overthinkers"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Support",
+        "email": "support@overthinkers.com"
+      }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Overthinkers",
+      "description": "Comprehensive mental health and stress management platform",
+      "url": "https://overthinkers.com",
+      "applicationCategory": "HealthApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
     </script>
 </body>
 </html>

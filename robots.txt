@@ -1,0 +1,36 @@
+# Robots.txt for Overthinkers - Mental Health Platform
+# Allow search engines to crawl and index all pages
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /register.html
+Allow: /page1.html
+Allow: /page2.html
+Allow: /page3.html
+Allow: /page4.html
+Allow: /sitemap.xml
+
+# Disallow admin or private pages (if any)
+# Disallow: /admin/
+# Disallow: /private/
+
+# Specify sitemap location
+Sitemap: https://overthinkers.com/sitemap.xml
+
+# Crawl delay (in seconds) - Allow fast crawling for search engines
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block bad bots
+User-agent: MJ12bot
+Disallow: /

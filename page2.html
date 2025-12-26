@@ -3,7 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Task Stress Analyzer</title>
+  <title>Task-Based Stress Analyzer - Overthinkers</title>
+  <meta name="description" content="Analyze your task-based stress with our AI-powered stress analyzer. Get stress scores and personalized recommendations from Overthinkers.">
+  <meta name="keywords" content="stress analyzer, task management, stress assessment, mental health, overthinking">
+  <meta property="og:title" content="Task-Based Stress Analyzer - Overthinkers">
+  <meta property="og:description" content="Understand your stress levels with detailed task-based analysis.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://overthinkers.com/stress-analyzer">
+  <meta name="robots" content="index, follow">
   <style>
     body{font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;background:#f6f8fb;margin:0}
     .navbar{background:rgba(0,0,0,0.7);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;color:#fff}
@@ -87,6 +94,8 @@
             <h4 style="margin:8px 0 6px 0">Saved Progress</h4>
             <div id="historyList" style="max-height:160px;overflow:auto;color:#333;padding-top:8px">No saved progress yet.</div>
           </div>
+
+          <button id="submitAnalysisBtn" class="btn" style="width:100%;margin-top:16px">Submit Analysis</button>
       </div>
 
       <div class="card">
@@ -272,6 +281,23 @@
     // hook save button if present
     const spBtn = document.getElementById('saveProgressBtn');
     if(spBtn) spBtn.addEventListener('click', saveProgress);
+
+    // Submit Analysis button handler
+    const submitBtn = document.getElementById('submitAnalysisBtn');
+    if(submitBtn) {
+      submitBtn.addEventListener('click', function() {
+        const list = collectUpcoming(7);
+        const metrics = computeStressMetrics(list);
+        const submission = {
+          timestamp: new Date().toISOString(),
+          metrics: metrics,
+          tasks: list,
+          userEmail: JSON.parse(localStorage.getItem('gdg_current_user') || '{}').email || 'unknown'
+        };
+        localStorage.setItem('gdg_last_submission', JSON.stringify(submission));
+        alert(`Analysis submitted successfully!\nStress Score: ${metrics.score}/10\nTasks: ${metrics.count}\n\nYour analysis has been saved.`);
+      });
+    }
 
     // initial render
     render();
